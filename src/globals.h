@@ -6,5 +6,7 @@
 #define PLAYER_ANIM_TILES 2
 #define PLAYER_HEIGHT 2
 #define PLAYER_WIDTH 2
+#define STARTING_LIVES 4
+#define LOG_ROWS 4
 
 #endif

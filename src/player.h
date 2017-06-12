@@ -2,6 +2,7 @@
 #define _PLAYER_H_
 
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/select.h>
 #include <unistd.h>
@@ -9,14 +10,6 @@
 #include "console.h"
 #include "frogger.h"
 #include "globals.h"
-
-
-static char *PLAYER_GRAPHIC[PLAYER_ANIM_TILES][PLAYER_HEIGHT+1] = {
-  {"@@",
-   "<>"},
-  {"--",
-   "<>"}
-};
 
 struct player {
   pthread_t tid;  // Thread id.

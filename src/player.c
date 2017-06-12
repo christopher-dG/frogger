@@ -1,5 +1,12 @@
 #include "player.h"
 
+static char *PLAYER_GRAPHIC[PLAYER_ANIM_TILES][PLAYER_HEIGHT+1] = {
+  {"@@",
+   "<>"},
+  {"--",
+   "<>"}
+};
+
 void *init_player(void *args) {
   struct player *frog = malloc(sizeof(struct player));
   frog->tid = pthread_self();
@@ -67,7 +74,6 @@ void draw(struct player *frog) {
   pthread_mutex_lock(&screen_lock);
   consoleClearImage(frog->y, frog->x, PLAYER_HEIGHT, PLAYER_WIDTH);
   consoleDrawImage(frog->y, frog->x, tile, PLAYER_HEIGHT);
-  consoleRefresh();
   pthread_mutex_unlock(&screen_lock);
 }
 
