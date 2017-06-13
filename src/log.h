@@ -15,6 +15,7 @@
 struct log {
   pthread_t tid;
   int row;
+  int direction;
   int y;
   int x;
   int active;
@@ -22,5 +23,8 @@ struct log {
 
 void *init_producer(void *args);
 void *init_log(void *args);
+void log_move(struct log *log);
+void delete_log(struct log *log, struct node *head);
+void draw_log(struct log *log);
 
 #endif

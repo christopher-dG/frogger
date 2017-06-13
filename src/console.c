@@ -74,7 +74,7 @@ void consoleDrawImage(int row, int col, char *image[], int height) {
   }
 }
 
-void consoleClearImage(int row, int col, int height, int width) {
+void consoleClearImage(int row, int col, int width, int height) {
   int i, j;
   if (consoleLock) return;
 

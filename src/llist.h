@@ -4,13 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "log.h"
-
 struct node {
   struct log *log;
   struct node *prev;
   struct node *next;
 };
+
+#include "log.h"
 
 struct node *create(struct log *log);
 int add(struct log *log, struct node *head);

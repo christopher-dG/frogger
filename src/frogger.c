@@ -35,22 +35,19 @@ pthread_mutex_t list_lock = PTHREAD_MUTEX_INITIALIZER;
 int main() {
   consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD);
 
-  pthread_t player;
+  /* pthread_t player; */
   pthread_t screen;
-  pthread_t log_producer[LOG_ROWS];
+  pthread_t log_producer;
   /* pthread_t lives; */
 
   pthread_create(&screen, NULL, &refresh, NULL);
-  pthread_create(&player, NULL, &init_player, NULL);
+  /* pthread_create(&player, NULL, &init_player, NULL); */
   /* pthread_create(&lives, NULL, &check_lives, NULL); */
-  int i, j;
-  for (i=0; i<LOG_ROWS; i++) {
-    j = i+1;
-    pthread_create(&log_producer[i], NULL, &init_producer, &j);
-  }
+  pthread_create(&log_producer, NULL, &init_producer, NULL);
 
-  pthread_join(screen, NULL);
-  pthread_join(player, NULL);
+  pthread_join(log_producer, NULL);
+  /* pthread_join(screen, NULL); */
+  /* pthread_join(player, NULL); */
   /* pthread_join(lives, NULL); */
 
   consoleFinish();
