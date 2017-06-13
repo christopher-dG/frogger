@@ -7,10 +7,12 @@
 
 #include "console.h"
 #include "frogger.h"
+#include "player.h"
 #include "llist.h"
 
 #define LOG_WIDTH 24
 #define LOG_HEIGHT 4
+#define N_LOG_GRAPHICS 2
 
 struct log {
   pthread_t tid;
@@ -23,8 +25,9 @@ struct log {
 
 void *init_producer(void *args);
 void *init_log(void *args);
-void log_move(struct log *log);
+void move_log(struct log *log, int direction);
 void delete_log(struct log *log, struct node *head);
 void draw_log(struct log *log);
+int has_frog(struct log *log);
 
 #endif
