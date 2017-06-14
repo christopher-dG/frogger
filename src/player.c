@@ -30,7 +30,7 @@ void *init_player(void *args) {
 
 // Open or close the frog's eyes.
 void *blink(void *args) {
-  while (1) {
+  while (running) {
     pthread_mutex_lock(&frog_lock);
     frog->blinking = !frog->blinking;
     pthread_mutex_unlock(&frog_lock);
@@ -47,7 +47,7 @@ void *input(void *args) {
   timeout->tv_usec = 166667;  // 1/60 seconds.
   char *c = malloc(1);
 
-  while (1) {  // TODO: Probably needs to use the condition variable.
+  while (running) {  // TODO: Probably needs to use the condition variable.
     if ((select(1, STDIN_FILENO, NULL, NULL, timeout)) > 1);
     read(STDIN_FILENO, c, 1);
 
@@ -65,44 +65,70 @@ void *input(void *args) {
       move_frog(0, RIGHT);
       break;
     case 'q':
-      // Quit: Set a condition variable.
+      quit();
       break;
+    case ' ':
+      pause_game();
     }
   }
 
   free(c);
   free(timeout);
+
+  return NULL;
 }
 
-// Draw the frog.
-void draw_frog() {
-  char **tile = PLAYER_GRAPHIC[frog->blinking];
-
+void pause_game() {
   pthread_mutex_lock(&screen_lock);
-  consoleClearImage(frog->y, frog->x, PLAYER_HEIGHT, PLAYER_WIDTH);
-  consoleDrawImage(frog->y, frog->x, tile, PLAYER_HEIGHT);
-  pthread_mutex_unlock(&screen_lock);
-}
-
-// Move the frog y and x units.
-// Note that y comes first as per curses convention.
-void move_frog(int y, int x) {
-  if ((on_screen(frog->y + y, frog->x + x, PLAYER_HEIGHT, PLAYER_WIDTH))) {
-
-    pthread_mutex_lock(&screen_lock);
-    consoleClearImage(frog->y, frog->x, PLAYER_HEIGHT, PLAYER_WIDTH);
-    pthread_mutex_unlock(&screen_lock);
-
-    pthread_mutex_lock(&frog_lock);
-    frog->x += x;
-    frog->y += y;
-    pthread_mutex_unlock(&frog_lock);
-
-    draw_frog();
-
+  putBanner("PAUSED");
+  pthread_mutex_lock(&list_lock);
+  pthread_mutex_lock(&frog_lock);
+  disableConsole(1);
+  int paused = 1;
+  char c;
+  while (running && paused) {
+    c = getchar();
+    if (c == ' ') {
+      disableConsole(0);
+      putBanner("      ");
+      pthread_mutex_unlock(&screen_lock);
+      pthread_mutex_unlock(&list_lock);
+      pthread_mutex_unlock(&frog_lock);
+      paused = 0;
+    } else if (c == 'q') quit();
+    else sleep(0);
   }
 }
 
-int on_screen(int y, int x, int height, int width) {
-  return (y >= 0 && x >= 0 && y + height - 1 < GAME_ROWS && x + width - 1 < GAME_COLS);
-}
+// Draw the frog.
+  void draw_frog() {
+    char **tile = PLAYER_GRAPHIC[frog->blinking];
+
+    pthread_mutex_lock(&screen_lock);
+    consoleClearImage(frog->y, frog->x, PLAYER_HEIGHT, PLAYER_WIDTH);
+    consoleDrawImage(frog->y, frog->x, tile, PLAYER_HEIGHT);
+    pthread_mutex_unlock(&screen_lock);
+  }
+
+// Move the frog y and x units.
+// Note that y comes first as per curses convention.
+  void move_frog(int y, int x) {
+    if ((on_screen(frog->y + y, frog->x + x, PLAYER_HEIGHT, PLAYER_WIDTH))) {
+
+      pthread_mutex_lock(&screen_lock);
+      consoleClearImage(frog->y, frog->x, PLAYER_HEIGHT, PLAYER_WIDTH);
+      pthread_mutex_unlock(&screen_lock);
+
+      pthread_mutex_lock(&frog_lock);
+      frog->x += x;
+      frog->y += y;
+      pthread_mutex_unlock(&frog_lock);
+
+      draw_frog();
+
+    }
+  }
+
+  int on_screen(int y, int x, int height, int width) {
+    return (y >= 0 && x >= 0 && y + height - 1 < GAME_ROWS && x + width - 1 < GAME_COLS);
+  }

@@ -1,6 +1,7 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
+#include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,8 @@
 #define LOG_WIDTH 24
 #define LOG_HEIGHT 4
 #define N_LOG_GRAPHICS 2
+#define TICK_BASE 70
+#define TICK_VARIATION 50
 
 struct log {
   pthread_t tid;
@@ -25,6 +28,7 @@ struct log {
 
 void *init_producer(void *args);
 void *init_log(void *args);
+void *manage_logs(void *args);
 void move_log(struct log *log, int direction);
 void delete_log(struct log *log, struct node *head);
 void draw_log(struct log *log);

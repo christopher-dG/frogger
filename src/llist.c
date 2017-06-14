@@ -31,11 +31,17 @@ int delete(struct log *log, struct node *head) {
   for (cur = head; cur != NULL; cur = cur->next) {
     if (cur->log->tid == log->tid) {
       if (cur->prev != NULL) cur->prev->next = cur->next;
-      if (cur -> next != NULL) cur->next->prev = cur->prev;
-      free(log);
+      if (cur->next != NULL) cur->next->prev = cur->prev;
+      /* free(log); */
+      /* free(cur); */
       return 1;
     }
   }
+
+  pthread_mutex_lock(&screen_lock);
+  putBanner("FAILED");
+  pthread_mutex_unlock(&screen_lock);
+
   return 0;
 }
 

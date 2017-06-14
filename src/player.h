@@ -28,6 +28,7 @@ struct player {
 void *init_player(void *args);
 void *blink(void *args);
 void *input (void *args);
+void pause_game();
 void draw_frog();
 void move_frog(int y, int x);
 int on_screen(int y, int x, int height, int width);

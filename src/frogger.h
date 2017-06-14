@@ -8,10 +8,13 @@
 #include "player.h"
 #include "log.h"
 
+extern int running;
+extern pthread_cond_t cond;
 extern pthread_mutex_t screen_lock;
 extern pthread_mutex_t list_lock;
 extern pthread_mutex_t frog_lock;
 
+void quit();
 void *refresh(void *args);
 void *check_lives(void *args);
 
