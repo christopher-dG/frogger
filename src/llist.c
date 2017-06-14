@@ -1,21 +1,19 @@
 #include "llist.h"
 
-// Create a new linked list.
 struct node *create(struct log *log) {
-  struct node *head = malloc(sizeof(struct node));
-  head->log = log;
-  head->prev = NULL;
-  head->next = NULL;
-  return head;
+    struct node *head = malloc(sizeof(struct node));
+    head->log = log;
+    head->prev = NULL;
+    head->next = NULL;
+    return head;
 }
 
 // Add a new log to the end of the list.
 int add(struct log *log, struct node *head) {
   if (head == NULL) return 0;
+
   struct node *cur;
-  for (cur = head; cur->next != NULL; cur = cur->next)
-    if (cur->log->tid == log->tid) return 0;
-  if (cur->log->tid == log->tid) return 0;
+  for (cur = head; cur->next != NULL; cur = cur->next);
 
   struct node *new = malloc(sizeof(struct node));
   new->log = log;
@@ -32,23 +30,18 @@ int delete(struct log *log, struct node *head) {
     if (cur->log->tid == log->tid) {
       if (cur->prev != NULL) cur->prev->next = cur->next;
       if (cur->next != NULL) cur->next->prev = cur->prev;
-      /* free(log); */
-      /* free(cur); */
       return 1;
     }
   }
-
-  pthread_mutex_lock(&screen_lock);
-  putBanner("FAILED");
-  pthread_mutex_unlock(&screen_lock);
-
   return 0;
 }
 
-// Retrieve a log from the list.
-struct log *search(pthread_t tid, struct node *head) {
+char *length(struct node *head) {
+  int count = 0;
   struct node *cur;
-  for (cur = head; cur != NULL; cur = cur->next)
-    if (cur->log->tid == tid) return cur->log;
-  return NULL;
+  for (cur = head; cur != NULL; cur = cur->next) count++;
+  char *output = malloc(3);
+  sprintf(output, "%d", count);
+  return output;
+
 }

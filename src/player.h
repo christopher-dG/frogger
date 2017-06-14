@@ -7,11 +7,11 @@
 #include <sys/select.h>
 #include <unistd.h>
 
+#include "log.h"
 #include "console.h"
+#include "wrappers.h"
 #include "frogger.h"
 #include "globals.h"
-
-#define UP_DOWN_STEP 4
 
 extern struct player *frog;
 
@@ -32,5 +32,8 @@ void pause_game();
 void draw_frog();
 void move_frog(int y, int x);
 int on_screen(int y, int x, int height, int width);
+int is_safe();
+int on_log(struct log *log);
+void reset_frog();
 
 #endif

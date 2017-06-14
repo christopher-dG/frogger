@@ -6,17 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "console.h"
-#include "frogger.h"
-#include "player.h"
-#include "llist.h"
-
-#define LOG_WIDTH 24
-#define LOG_HEIGHT 4
-#define N_LOG_GRAPHICS 2
-#define TICK_BASE 70
-#define TICK_VARIATION 50
-
 struct log {
   pthread_t tid;
   int row;
@@ -26,12 +15,18 @@ struct log {
   int active;
 };
 
+#include "console.h"
+#include "wrappers.h"
+#include "frogger.h"
+#include "player.h"
+#include "llist.h"
+
+extern struct node *head;
+
 void *init_producer(void *args);
 void *init_log(void *args);
 void *manage_logs(void *args);
 void move_log(struct log *log, int direction);
-void delete_log(struct log *log, struct node *head);
 void draw_log(struct log *log);
-int has_frog(struct log *log);
 
 #endif

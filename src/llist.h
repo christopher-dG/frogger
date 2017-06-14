@@ -1,7 +1,6 @@
 #ifndef _LLIST_H_
 #define _LLIST_H_
 
-#include <stdio.h>
 #include <stdlib.h>
 
 struct node {
@@ -11,9 +10,11 @@ struct node {
 };
 
 #include "log.h"
+#include "frogger.h"
 
 struct node *create(struct log *log);
 int add(struct log *log, struct node *head);
 int delete(struct log *log, struct node *head);
-struct log *search(pthread_t tid, struct node *head);
+char *length(struct node *head);
+
 #endif
