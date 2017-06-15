@@ -48,7 +48,7 @@ void *blink(void *args) {
 void *input(void *args) {
   struct timeval *timeout = malloc(sizeof(struct timeval));
   timeout->tv_usec = TIMEOUT_USEC;
-  char *c = malloc(1);
+  char *c = malloc(2);
 
   while (running) {
     while ((select(1, STDIN_FILENO, NULL, NULL, timeout)) > 1);
@@ -72,6 +72,7 @@ void *input(void *args) {
       break;
     case ' ':
       pause_game(-1);
+      break;
     }
   }
 

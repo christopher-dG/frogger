@@ -27,8 +27,8 @@ char *GAME_BOARD[] = {
   ""
 };
 
-int lives = STARTING_LIVES;
-int goals[5];
+int lives = N_STARTING_LIVES;
+int goals[N_GOALS];
 
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 int running = 1;
@@ -50,7 +50,7 @@ int main() {
   create_thread(&screen, &refresh, NULL);
   create_thread(&player, &init_player, NULL);
   create_thread(&log_producer, &init_producer, NULL);
-  create_thread(&log_manager, &manage_logs, NULL);
+  // create_thread(&log_manager, &manage_logs, NULL);
   create_thread(&game_monitor, &monitor_game, NULL);
 
   // Wait for the game to end.
@@ -88,7 +88,7 @@ void pause_game(int ticks) {
   lock_mutex(&screen_lock);
   lock_mutex(&list_lock);
 
-  if (pause >= 0) {
+  if (ticks >= 0) {
     disableConsole(1);
     sleepTicks(ticks);
   } else {
@@ -133,8 +133,9 @@ void pause_game(int ticks) {
   }
 
   void *monitor_game(void *args) {
+    int i, complete;
     char *output[1];
-    output[0] = malloc(1);
+    output[0] = malloc(2);
 
     while (running) {
       lock_mutex(&lives_lock);
@@ -145,9 +146,15 @@ void pause_game(int ticks) {
       consoleDrawImage(0, LIVES_X, output, 1);
       unlock_mutex(&screen_lock);
 
+      if (lives <= 0) quit(LOSE_MSG);
+
+      complete = 1;
+      for (i=0; complete && i<N_GOALS; i++)
+        if (!goals[i]) complete = 0;
+      if (complete) quit("Congratulations.");
+
       sleepTicks(30);
 
-      if (!lives) quit(LOSE_MSG);
     }
     free(output[0]);
 

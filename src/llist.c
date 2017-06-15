@@ -1,47 +1,38 @@
 #include "llist.h"
 
-struct node *create(struct log *log) {
-    struct node *head = malloc(sizeof(struct node));
-    head->log = log;
-    head->prev = NULL;
-    head->next = NULL;
-    return head;
-}
-
-// Add a new log to the end of the list.
-int add(struct log *log, struct node *head) {
-  if (head == NULL) return 0;
-
-  struct node *cur;
-  for (cur = head; cur->next != NULL; cur = cur->next);
-
+void add(struct log *log, struct node **head) {
   struct node *new = malloc(sizeof(struct node));
   new->log = log;
-  new->prev = cur;
-  new->next = NULL;
-  cur->next = new;
-  return 1;
+  new->prev = NULL;
+  new->next = *head;
+  if (*head != NULL) (*head)->prev = new;
+  *head = new;
 }
 
-// Delete a log from the list.
-int delete(struct log *log, struct node *head) {
+/* void delete(struct node *node, struct node **head) { */
+/*   if (*head == node) { */
+/*     *head = node->next; */
+/*     (*head)->prev = NULL; */
+/*   } else { */
+/*     if (node->prev != NULL) node->prev->next = node->next; */
+/*     if (node->next != NULL) node->next->prev = node->prev; */
+/*   } */
+/*   free(node->log); */
+/*   free(node); */
+/* } */
+
+void delete(struct log *log, struct node **head) {
   struct node *cur;
-  for (cur = head; cur != NULL; cur = cur->next) {
-    if (cur->log->tid == log->tid) {
-      if (cur->prev != NULL) cur->prev->next = cur->next;
-      if (cur->next != NULL) cur->next->prev = cur->prev;
-      return 1;
-    }
+  struct node *del = NULL;;
+  for (cur = *head; del == NULL && cur != NULL; cur = cur->next)
+    if (cur->log == log) del = cur;
+  if (del == *head) {
+    *head = del->next;
+    (*head)->prev = NULL;
+  } else {
+    if (del->prev != NULL) del->prev->next = del->next;
+    if (del->next != NULL) del->next->prev = del->prev;
   }
-  return 0;
-}
-
-char *length(struct node *head) {
-  int count = 0;
-  struct node *cur;
-  for (cur = head; cur != NULL; cur = cur->next) count++;
-  char *output = malloc(3);
-  sprintf(output, "%d", count);
-  return output;
-
+  free(del->log);
+  free(del);
 }

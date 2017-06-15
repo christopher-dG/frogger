@@ -38,15 +38,19 @@ void *init_log(void *args) {
   log->x = log->direction > 0 ? LOG_WIDTH * -1 : GAME_COLS;
   log->active = 1;
 
-  // THIS IS FUCKING THINGS UP
-  /* lock_mutex(&list_lock); */
-  if (!add(log, head)) head = create(log);
-  /* unlock_mutex(&list_lock); */
+  lock_mutex(&list_lock);
+  add(log, &head);
+  unlock_mutex(&list_lock);
 
   while (running && log->active) {
     move_log(log, log->direction);
     sleepTicks(log->row * 2);
   }
+
+  lock_mutex(&list_lock);
+  delete(log, &head);
+  unlock_mutex(&list_lock);
+  log = NULL;
 
   return NULL;
 }
@@ -56,10 +60,10 @@ void *manage_logs(void *args) {
 
   while (running) {
     lock_mutex(&list_lock);
-    for (cur = head; cur != NULL; cur = cur->next) {
-      if (!cur->log->active) delete(cur->log, head);
-    }
+    for (cur = head; cur != NULL; cur = cur->next)
+      if (cur != NULL && !cur->log->active) delete(cur, &head);
     unlock_mutex(&list_lock);
+
     sleepTicks(100);
   }
 
@@ -68,6 +72,7 @@ void *manage_logs(void *args) {
 
 void move_log(struct log *log, int direction) {
   lock_mutex(&screen_lock);
+  // Clear the column that the log previously occupied.
   if (direction > 0)
     consoleClearImage(log->y, log->x, 1, LOG_HEIGHT);
   else

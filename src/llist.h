@@ -10,11 +10,12 @@ struct node {
 };
 
 #include "log.h"
-#include "frogger.h"
 
-struct node *create(struct log *log);
-int add(struct log *log, struct node *head);
-int delete(struct log *log, struct node *head);
-char *length(struct node *head);
+// Add a new node to the list.
+void add(struct log *log, struct node **head);
+
+// Delete a node from the list.
+// void delete(struct node *node, struct node **head);
+void delete(struct log *log, struct node **head);
 
 #endif
