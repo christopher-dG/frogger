@@ -50,7 +50,7 @@ int main() {
   create_thread(&screen, &refresh, NULL);
   create_thread(&player, &init_player, NULL);
   create_thread(&log_producer, &init_producer, NULL);
-  // create_thread(&log_manager, &manage_logs, NULL);
+  create_thread(&log_manager, &manage_logs, NULL);
   create_thread(&game_monitor, &monitor_game, NULL);
 
   // Wait for the game to end.

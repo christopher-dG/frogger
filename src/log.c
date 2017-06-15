@@ -47,11 +47,6 @@ void *init_log(void *args) {
     sleepTicks(log->row * 2);
   }
 
-  lock_mutex(&list_lock);
-  delete(log, &head);
-  unlock_mutex(&list_lock);
-  log = NULL;
-
   return NULL;
 }
 
@@ -61,7 +56,10 @@ void *manage_logs(void *args) {
   while (running) {
     lock_mutex(&list_lock);
     for (cur = head; cur != NULL; cur = cur->next)
-      if (cur != NULL && !cur->log->active) delete(cur, &head);
+      if (cur != NULL && !cur->log->active) {
+        join_thread(cur->log->tid);
+        delete(cur, &head);
+      }
     unlock_mutex(&list_lock);
 
     sleepTicks(100);

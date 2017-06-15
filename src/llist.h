@@ -15,7 +15,6 @@ struct node {
 void add(struct log *log, struct node **head);
 
 // Delete a node from the list.
-// void delete(struct node *node, struct node **head);
-void delete(struct log *log, struct node **head);
+void delete(struct node *node, struct node **head);
 
 #endif
