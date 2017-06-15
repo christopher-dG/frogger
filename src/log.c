@@ -18,9 +18,9 @@ void *init_producer(void *args) {
   int i;
   while (running) {
     for (i=LOG_ROWS; running && i>0; i--) {
-      lock_mutex(&list_lock);
+      lock_mutex(&screen_lock);
       create_thread(&log, &init_log, &i);
-      unlock_mutex(&list_lock);
+      unlock_mutex(&screen_lock);
       sleepTicks(TICK_BASE + rand() % TICK_VARIATION);
     }
   }
@@ -63,6 +63,11 @@ void *manage_logs(void *args) {
     unlock_mutex(&list_lock);
 
     sleepTicks(100);
+  }
+
+  for (cur = head; cur != NULL; cur = cur->next) {
+    join_thread(cur->log->tid);
+    delete(cur, &head);
   }
 
   return NULL;

@@ -57,11 +57,11 @@ int main() {
   while (running) cond_wait(&cond, &screen_lock);
 
   printf("Done!\n");
-  exit(EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
 
 // Clean up and exit the game.
-void quit(char *msg) {
+void quit_game(char *msg) {
   lock_mutex(&screen_lock);
   putBanner(msg);
   disableConsole(1);
@@ -74,14 +74,12 @@ void quit(char *msg) {
   cond_signal(&cond);
 
   join_thread(log_producer);
-  join_thread(screen);
-  join_thread(log_manager);
-  join_thread(player);
   join_thread(game_monitor);
+  join_thread(screen);
+  join_thread(player);
+  join_thread(log_manager);
 }
 
-// Pause for some amount of time. If ticks is negative, wait
-// until the game is manually resumed or quit.
 void pause_game(int ticks) {
   lock_mutex(&lives_lock);
   lock_mutex(&frog_lock);
@@ -99,18 +97,18 @@ void pause_game(int ticks) {
 
     while (running && paused) {
       c = getchar();
-      if (c == ' ') {
+      if (c == KEY_PAUSE) {
         disableConsole(0);
-        putBanner("      ");
+        putBanner(UNPAUSE_MSG);
         paused = 0;
-      } else if (c == 'q') {
+      } else if (c == KEY_QUIT) {
         unlock_mutex(&screen_lock);
         unlock_mutex(&list_lock);
         unlock_mutex(&frog_lock);
         unlock_mutex(&lives_lock);
         disableConsole(0);
-        quit(QUIT_MSG);
-      } else sleep(0);
+        quit_game(QUIT_MSG);
+      } else sleepTicks(0);
     }
   }
 
@@ -121,42 +119,43 @@ void pause_game(int ticks) {
   unlock_mutex(&list_lock);
 }
 
-  void *refresh(void *args) {
-    while (running) {
-      lock_mutex(&screen_lock);
-      consoleRefresh();
-      unlock_mutex(&screen_lock);
+void *refresh(void *args) {
+  while (running) {
+    lock_mutex(&screen_lock);
+    consoleRefresh();
+    unlock_mutex(&screen_lock);
 
-      sleepTicks(3);
-    }
-    return NULL;
+    sleepTicks(3);
+  }
+  return NULL;
+}
+
+void *monitor_game(void *args) {
+  int i, won;
+  char *output[1];
+  output[0] = malloc(2);
+
+  while (running) {
+    lock_mutex(&lives_lock);
+    sprintf(output[0], "%d", lives);
+    unlock_mutex(&lives_lock);
+
+    lock_mutex(&screen_lock);
+    consoleDrawImage(0, LIVES_X, output, 1);
+    unlock_mutex(&screen_lock);
+
+    if (lives <= 0) quit_game(LOSE_MSG);
+
+    won = 1;
+    // If there are any unfilled goals, the game is not yet won.
+    for (i=0; won && i<N_GOALS; i++)
+      if (!goals[i]) won = 0;
+    if (won) quit_game(WIN_MSG);
+
+    sleepTicks(30);
   }
 
-  void *monitor_game(void *args) {
-    int i, complete;
-    char *output[1];
-    output[0] = malloc(2);
+  free(output[0]);
 
-    while (running) {
-      lock_mutex(&lives_lock);
-      sprintf(output[0], "%d", lives);
-      unlock_mutex(&lives_lock);
-
-      lock_mutex(&screen_lock);
-      consoleDrawImage(0, LIVES_X, output, 1);
-      unlock_mutex(&screen_lock);
-
-      if (lives <= 0) quit(LOSE_MSG);
-
-      complete = 1;
-      for (i=0; complete && i<N_GOALS; i++)
-        if (!goals[i]) complete = 0;
-      if (complete) quit("Congratulations.");
-
-      sleepTicks(30);
-
-    }
-    free(output[0]);
-
-    return NULL;
-  }
+  return NULL;
+}

@@ -22,7 +22,15 @@
 #define TICK_BASE 70
 #define TICK_VARIATION 90
 #define PAUSE_MSG "PAUSED"
+#define UNPAUSE_MSG "      "
 #define QUIT_MSG "You didn't lose, but... you didn't win."
+#define WIN_MSG "Congratulations!"
 #define LOSE_MSG "Maybe next time."
+#define KEY_UP 'w'
+#define KEY_DOWN 's'
+#define KEY_LEFT 'a'
+#define KEY_RIGHT 'd'
+#define KEY_PAUSE ' '
+#define KEY_QUIT 'q'
 
 #endif

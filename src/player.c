@@ -55,22 +55,22 @@ void *input(void *args) {
     read(STDIN_FILENO, c, 1);
 
     switch(c[0]) {
-    case 'w':
+    case KEY_UP:
       move_frog(UP * UP_DOWN_STEP, 0);
       break;
-    case 'a':
+    case KEY_DOWN:
       move_frog(0, LEFT);
       break;
-    case 's':
+    case KEY_LEFT:
       move_frog(DOWN * UP_DOWN_STEP, 0);
       break;
-    case 'd':
+    case KEY_RIGHT:
       move_frog(0, RIGHT);
       break;
-    case 'q':
-      quit(QUIT_MSG);
+    case KEY_QUIT:
+      quit_game(QUIT_MSG);
       break;
-    case ' ':
+    case KEY_PAUSE:
       pause_game(-1);
       break;
     }
@@ -96,7 +96,9 @@ void drown() {
   sleepTicks(3);
   reset_frog();
   pause_game(50);
+  lock_mutex(&lives_lock);
   lives--;
+  unlock_mutex(&lives_lock);
 }
 
 
@@ -113,12 +115,16 @@ void move_frog(int y, int x) {
     frog->y += y;
     unlock_mutex(&frog_lock);
 
-    // Is the frog safe? Otherwise, reset.
-    // Is the frog in a cubby?
     if (!is_safe()) drown();
     draw_frog();
-
-
+  } else {  // Check if the frog was pushed off-screen by a log.
+    struct node *cur;
+    int drowning = 0;
+    lock_mutex(&list_lock);
+    for (cur = head; !drowning && cur != NULL; cur = cur->next)
+      if (on_log(cur->log)) drowning = 1;
+    unlock_mutex(&list_lock);
+    if (drowning) drown();
   }
 }
 

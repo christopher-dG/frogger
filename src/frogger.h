@@ -17,9 +17,18 @@ extern pthread_mutex_t list_lock;
 extern pthread_mutex_t frog_lock;
 extern pthread_mutex_t lives_lock;
 
-void quit(char *msg);
-void *refresh(void *args);
-void *monitor_game(void *args);
+// Exit the game.
+void quit_game(char *msg);
+
+// Pause for some amount of time. If ticks is negative, wait
+// until the game is manually resumed or quit.
 void pause_game(int ticks);
+
+// Continuously update the screen.
+void *refresh(void *args);
+
+// Keep track of lives, goals.
+void *monitor_game(void *args);
+
 
 #endif
