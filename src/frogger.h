@@ -1,3 +1,9 @@
+/*
+  frogger.h
+
+  Defines frogger.c's functions and shared variables.
+ */
+
 #ifndef _FROGGER_H
 #define _FROGGER_H_
 

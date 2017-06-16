@@ -1,3 +1,9 @@
+/*
+  llist.h
+
+  Defines llist.c's functions and the node struct.
+ */
+
 #ifndef _LLIST_H_
 #define _LLIST_H_
 

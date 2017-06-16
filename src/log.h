@@ -1,3 +1,9 @@
+/*
+   log.h
+
+   Define's log.c's functions and the log struct.
+*/
+
 #ifndef _LOG_H_
 #define _LOG_H_
 

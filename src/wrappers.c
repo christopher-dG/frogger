@@ -1,3 +1,9 @@
+/*
+  wrappers.c
+
+  Responsible for facilitating safe access to concurrency system calls.
+ */
+
 #include "wrappers.h"
 
 void create_thread(pthread_t *thread, void *func, void *args) {

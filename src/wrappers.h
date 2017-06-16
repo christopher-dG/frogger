@@ -1,3 +1,9 @@
+/*
+   wrappers.h
+
+   Defines wrappes.c's functions.
+ */
+
 #ifndef _WRAPPERS_H_
 #define _WRAPPERS_H_
 

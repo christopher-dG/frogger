@@ -1,3 +1,9 @@
+/*
+  log.c
+
+  Responsible for log production, individual log movement and log memory management.
+ */
+
 #include "log.h"
 
 struct node *head = NULL;  // A linked list of logs.
@@ -12,7 +18,6 @@ static char *LOG_GRAPHIC[N_LOG_GRAPHICS][LOG_HEIGHT + 1] = {
    "\\======================/"},
 };
 
-// Continuously spawn new log threads.
 void *init_producer(void *args) {
   int row = *(int *)args;
   while (running) {
@@ -26,7 +31,6 @@ void *init_producer(void *args) {
   return NULL;
 }
 
-// Create a new log and move it across the screen.
 void *init_log(void *args) {
   struct log *log = malloc(sizeof(struct log));
   log->tid = pthread_self();

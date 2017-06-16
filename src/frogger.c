@@ -1,3 +1,9 @@
+/*
+  frogger.c
+
+  Responsible for basic game maintenance such as starting/pausing/ending, as well as user input.
+*/
+
 #include "frogger.h"
 
 char *GAME_BOARD[] = {

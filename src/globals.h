@@ -1,3 +1,9 @@
+/*
+  globals.h
+
+  Defines global constants.
+ */
+
 #ifndef _GLOBALS_H
 #define _GLOBALS_H_
 
@@ -47,7 +53,6 @@
 #define HOME_COL_4 55
 // x position of the fifth home slot.
 #define HOME_COL_5 73
-
 // Number of nanoseconds to wait for user input.
 #define TIMEOUT_USEC 166667
 // Number of goals to fill.

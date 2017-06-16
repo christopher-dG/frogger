@@ -1,3 +1,9 @@
+/*
+   player.c
+
+   Responsible for managing the player's frog character's position on screen and related game logic.
+ */
+
 #include "player.h"
 
 static char *PLAYER_GRAPHIC[N_PLAYER_GRAPHICS][PLAYER_HEIGHT+1] = {

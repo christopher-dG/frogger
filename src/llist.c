@@ -1,3 +1,9 @@
+/*
+   llist.c
+
+   Responsible for implementing a doubly-linked list.
+ */
+
 #include "llist.h"
 
 void add(struct log *log, struct node **head) {
