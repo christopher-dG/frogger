@@ -7,7 +7,7 @@
 #include "log.h"
 
 struct node *head = NULL;  // A linked list of logs.
-static char *LOG_GRAPHIC[N_LOG_GRAPHICS][LOG_HEIGHT + 1] = {
+static char *LOG_GRAPHIC[N_LOG_GRAPHICS][LOG_HEIGHT + 1] = {  // Alternating log graphics.
   {"/======================\\",
    "|   +                  |",
    "|     +                |",
@@ -19,14 +19,14 @@ static char *LOG_GRAPHIC[N_LOG_GRAPHICS][LOG_HEIGHT + 1] = {
 };
 
 void *init_producer(void *args) {
-  int row = *(int *)args;
   while (running) {
     pthread_t log;
     lock_mutex(&screen_lock);
-    create_thread(&log, &init_log, &row);
+    create_thread(&log, &init_log, args);
     unlock_mutex(&screen_lock);
     sleepTicks(TICK_BASE + rand() % TICK_VARIATION);
   }
+  free(args);
 
   return NULL;
 }

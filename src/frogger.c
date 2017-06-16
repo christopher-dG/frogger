@@ -60,8 +60,12 @@ int main() {
   create_thread(&keyboard, &input, NULL);
   create_thread(&log_manager, &manage_logs, NULL);
   create_thread(&game_monitor, &monitor_game, NULL);
-  for (i=0; i<N_LOG_ROWS; i++) create_thread(&log_producer[i], &init_producer, &i);
-
+  for (i=0; i<N_LOG_ROWS; i++) {
+    // Need to allocate memory for the row number so that it doesn't change during thread execution.
+    int *row = malloc(sizeof(int));
+    *row = i+1;
+    create_thread(&log_producer[i], &init_producer, row);
+  }
 
   // Wait for the game to end.
   while (running) cond_wait(&cond, &screen_lock);
