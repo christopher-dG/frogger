@@ -17,7 +17,7 @@ void *init_producer(void *args) {
   pthread_t log;
   int i;
   while (running) {
-    for (i=LOG_ROWS; running && i>0; i--) {
+    for (i=N_LOG_ROWS; running && i>0; i--) {
       lock_mutex(&screen_lock);
       create_thread(&log, &init_log, &i);
       unlock_mutex(&screen_lock);
@@ -44,7 +44,8 @@ void *init_log(void *args) {
 
   while (running && log->active) {
     move_log(log, log->direction);
-    sleepTicks(log->row * 2);
+    sleepTicks(10);
+    // sleepTicks(log->row * 2);
   }
 
   return NULL;

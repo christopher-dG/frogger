@@ -1,12 +1,6 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/select.h>
-#include <unistd.h>
-
 #include "log.h"
 #include "console.h"
 #include "wrappers.h"
@@ -16,24 +10,47 @@
 extern struct player *frog;
 
 struct player {
-  pthread_t tid;  // Thread id.
-  pthread_t blinker;  // Thread for making the frog blink.
-  pthread_t keyboard;  // Thread for handling user input to the frog.
-  int x;  // x position (top left corner).
-  int y;  // y position (top left corner).
+  int x;         // x position (top left corner).
+  int y;         // y position (top left corner).
   int blinking;  // Are the frog's eyes closed?
-  int on_log;  // Is the frog on a log?
 };
 
+// Create the frog and initialize its threads.
 void *init_player(void *args);
+
+// Continually blink the frog's eyes.
 void *blink(void *args);
+
+// Continually get keyboard input for game actions.
 void *input (void *args);
-void pause_game();
+
+// Draw the frog in its current position.
 void draw_frog();
+
+// Move the frog y and x units.
 void move_frog(int y, int x);
+
+// Determine if the frog is on screen or not.
 int on_screen(int y, int x, int height, int width);
+
+// Determine if the frog is in a safe space or not.
 int is_safe();
+
+// Determine if the frog is in a home slot.
+int is_home();
+
+// Determined which home slot the frog is in.
+int get_slot();
+
+// Determine if the frog is on a given log or not.
 int on_log(struct log *log);
+
+// Move the frog back to its starting position.
 void reset_frog();
 
+// Determine if the frog is on the last row of logs.
+int on_last_row();
+
+// Determine if the frog is in range of the goal row.
+int can_reach_goal();
 #endif

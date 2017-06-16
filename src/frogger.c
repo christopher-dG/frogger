@@ -27,31 +27,34 @@ char *GAME_BOARD[] = {
   ""
 };
 
-int lives = N_STARTING_LIVES;
-int goals[N_GOALS];
+int lives = N_STARTING_LIVES;                    // Current lives remaining.
+int goals[N_GOALS];                              // Array of "home" spots for the player to reach.
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;  // Condition variable for game end.
+int running = 1;                                 // True until the game ends.
 
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-int running = 1;
+pthread_mutex_t screen_lock = PTHREAD_MUTEX_INITIALIZER;  // Lock for accessing the screen.
+pthread_mutex_t list_lock = PTHREAD_MUTEX_INITIALIZER;    // Lock for accessing the list of logs.
+pthread_mutex_t frog_lock = PTHREAD_MUTEX_INITIALIZER;    // Lock for accessing the player.
+pthread_mutex_t lives_lock = PTHREAD_MUTEX_INITIALIZER;   // Lock for accessing the remaining lives.
 
-pthread_mutex_t screen_lock = PTHREAD_MUTEX_INITIALIZER;;
-pthread_mutex_t list_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t frog_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t lives_lock = PTHREAD_MUTEX_INITIALIZER;
-
-pthread_t player;
-pthread_t screen;
-pthread_t log_producer;
-pthread_t log_manager;
-pthread_t game_monitor;
+pthread_t screen;        // Thread to refresh the screen.
+pthread_t player;        // Thread to control the player.
+pthread_t keyboard;      // Thread to handle user input.
+pthread_t log_producer;  // Thread to continually spawn new logs.
+pthread_t log_manager;   // Thread to clean up inactive logs.
+pthread_t game_monitor;  // Thread to monitor remaining lives and goals.
 
 int main() {
   consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD);
 
+  // Create the threads that run continously.
   create_thread(&screen, &refresh, NULL);
   create_thread(&player, &init_player, NULL);
+  create_thread(&keyboard, &input, NULL);
   create_thread(&log_producer, &init_producer, NULL);
   create_thread(&log_manager, &manage_logs, NULL);
   create_thread(&game_monitor, &monitor_game, NULL);
+
 
   // Wait for the game to end.
   while (running) cond_wait(&cond, &screen_lock);
@@ -60,7 +63,6 @@ int main() {
   return EXIT_SUCCESS;
 }
 
-// Clean up and exit the game.
 void quit_game(char *msg) {
   lock_mutex(&screen_lock);
   putBanner(msg);
@@ -87,28 +89,31 @@ void pause_game(int ticks) {
   lock_mutex(&list_lock);
 
   if (ticks >= 0) {
+    // Pause for some number of ticks.
     disableConsole(1);
     sleepTicks(ticks);
   } else {
+    // Pause until manual unpause or quit.
     putBanner(PAUSE_MSG);
     disableConsole(1);
     int paused = 1;
-    char c;
 
     while (running && paused) {
-      c = getchar();
-      if (c == KEY_PAUSE) {
+      switch(getchar()) {
+      case KEY_PAUSE:
         disableConsole(0);
         putBanner(UNPAUSE_MSG);
         paused = 0;
-      } else if (c == KEY_QUIT) {
+        break;
+      case KEY_QUIT:
         unlock_mutex(&screen_lock);
         unlock_mutex(&list_lock);
         unlock_mutex(&frog_lock);
         unlock_mutex(&lives_lock);
         disableConsole(0);
         quit_game(QUIT_MSG);
-      } else sleepTicks(0);
+        break;
+      }
     }
   }
 
@@ -119,13 +124,58 @@ void pause_game(int ticks) {
   unlock_mutex(&list_lock);
 }
 
+void *input(void *args) {
+  struct timespec timeout = getTimeout(1);
+  char *c = malloc(1);
+  int ret;
+  fd_set set;
+
+  while (running) {
+    FD_ZERO(&set);
+    FD_SET(STDIN_FILENO, &set);
+    ret = pselect(FD_SETSIZE, &set, NULL, NULL, &timeout, NULL);
+
+    if (ret > 0) read(STDIN_FILENO, c, 1);
+    else continue;
+
+    switch(c[0]) {
+    case KEY_UP:
+      if (can_reach_goal()) {
+        move_frog(UP * FINAL_UP_DOWN_STEP, 0);
+      } else if (!on_last_row()) {
+        move_frog(UP * UP_DOWN_STEP, 0);
+      }
+      break;
+    case KEY_DOWN:
+      move_frog(DOWN * UP_DOWN_STEP, 0);
+      break;
+    case KEY_LEFT:
+      move_frog(0, LEFT);
+      break;
+    case KEY_RIGHT:
+      move_frog(0, RIGHT);
+      break;
+    case KEY_QUIT:
+      quit_game(QUIT_MSG);
+      break;
+    case KEY_PAUSE:
+      pause_game(-1);
+      break;
+    }
+  }
+
+  free(c);
+
+  return NULL;
+}
+
 void *refresh(void *args) {
   while (running) {
     lock_mutex(&screen_lock);
     consoleRefresh();
     unlock_mutex(&screen_lock);
 
-    sleepTicks(3);
+    sleepTicks(100 / REFRESH_RATE);
   }
   return NULL;
 }
@@ -152,7 +202,7 @@ void *monitor_game(void *args) {
       if (!goals[i]) won = 0;
     if (won) quit_game(WIN_MSG);
 
-    sleepTicks(30);
+    sleepTicks(1);
   }
 
   free(output[0]);

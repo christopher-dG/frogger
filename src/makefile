@@ -7,4 +7,4 @@ debug:	globals.h console.c console.h frogger.c frogger.h wrappers.c wrappers.h p
 	gcc -g -Wall -lcurses -lpthread frogger.c wrappers.c console.c player.c log.c llist.c -o frogger
 
 clean:
-	rm -f frogger
+	rm -f *.o frogger
