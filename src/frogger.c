@@ -78,11 +78,12 @@ void quit_game(char *msg) {
   running = false;
   cond_signal(&cond);
 
+  for (i=0; i<N_LOG_ROWS; i++) join_thread(log_producer[i]);
   join_thread(game_monitor);
   join_thread(screen);
   join_thread(player);
   join_thread(log_manager);
-  for (i=0; i<N_LOG_ROWS; i++) join_thread(log_producer[i]);
+
 }
 
 void pause_game(int ticks) {
