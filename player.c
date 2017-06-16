@@ -57,7 +57,6 @@ void draw_frog() {
 
 void drown() {
   draw_frog();
-  sleepTicks(3);
   reset_frog();
   pause_game(50);
 
@@ -88,8 +87,6 @@ void move_frog(int y, int x) {
       unlock_mutex(&frog_lock);
     }
   } else if (on_any_log()) drown();
-
-  if (!is_safe() && !on_any_log()) drown();
 }
 
 int on_log(struct log *log) {
@@ -101,7 +98,7 @@ int on_log(struct log *log) {
   return on;
 }
 
-int on_any_log(struct log *log) {
+int on_any_log() {
   struct node *cur;
   int on = 0;
   lock_mutex(&list_lock);
@@ -115,14 +112,8 @@ int is_safe() {
   lock_mutex(&frog_lock);
   int safe = frog->y < RIVER_START || frog->y > RIVER_END;
   unlock_mutex(&frog_lock);
-  struct node *cur;
 
-  lock_mutex(&list_lock);
-  for (cur = head; !safe && cur != NULL; cur = cur->next)
-    safe = on_log(cur->log);
-  unlock_mutex(&list_lock);
-
-  return safe;
+  return safe || on_any_log();
 }
 
 int is_home() {

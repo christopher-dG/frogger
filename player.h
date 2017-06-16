@@ -26,11 +26,11 @@ void *init_player(void *args);
 // Continually blink the frog's eyes.
 void *blink(void *args);
 
-// Continually get keyboard input for game actions.
-void *input (void *args);
-
 // Draw the frog in its current position.
 void draw_frog();
+
+// Move the frog back to the start and subtract a life.
+void drown();
 
 // Move the frog y and x units.
 void move_frog(int y, int x);

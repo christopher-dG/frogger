@@ -97,10 +97,10 @@ void quit_game(char *msg) {
 }
 
 void pause_game(int ticks) {
+  lock_mutex(&list_lock);
   lock_mutex(&lives_lock);
   lock_mutex(&frog_lock);
   lock_mutex(&screen_lock);
-  lock_mutex(&list_lock);
 
   if (ticks >= 0) {
     // Pause for some number of ticks.
@@ -185,11 +185,13 @@ void *input(void *args) {
 
 void *refresh(void *args) {
   while (running) {
+    sleepTicks(100 / REFRESH_RATE);
+
     lock_mutex(&screen_lock);
     consoleRefresh();
     unlock_mutex(&screen_lock);
 
-    sleepTicks(100 / REFRESH_RATE);
+    if (!is_safe()) drown();
   }
   return NULL;
 }

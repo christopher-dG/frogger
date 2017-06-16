@@ -27,17 +27,19 @@ extern pthread_mutex_t list_lock;
 extern pthread_mutex_t frog_lock;
 extern pthread_mutex_t lives_lock;
 
-// Exit the game.
+// Display msg and exit the game.
 void quit_game(char *msg);
 
 // Pause for some amount of time, or until the game is unpaused or quit.
 void pause_game(int ticks);
 
-// Continuously update the screen.
+// Continually get keyboard input for game actions.
+void *input (void *args);
+
+// Continually update the screen and check for frog safety.
 void *refresh(void *args);
 
-// Keep track of lives, goals.
+// Keep track of lives and goals.
 void *monitor_game(void *args);
-
 
 #endif
