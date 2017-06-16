@@ -62,7 +62,6 @@ void drown() {
 
 void move_frog(int y, int x) {
   if ((on_screen(frog->y + y, frog->x + x, PLAYER_HEIGHT, PLAYER_WIDTH))) {
-
     lock_mutex(&frog_lock);
     lock_mutex(&screen_lock);
     consoleClearImage(frog->y, frog->x, PLAYER_HEIGHT, PLAYER_WIDTH);
@@ -82,19 +81,9 @@ void move_frog(int y, int x) {
       frog->y -= y;
       unlock_mutex(&frog_lock);
     }
-  }
+  } else if (on_any_log()) drown();
 
-  struct node *cur;
-  int drowning = !is_safe();
-
-  if (drowning) {
-    lock_mutex(&list_lock);
-    for (cur = head; drowning && cur != NULL; cur = cur->next)
-      if (on_log(cur->log)) drowning = 0;
-    unlock_mutex(&list_lock);
-  }
-
-  if (drowning) drown();
+  if (!is_safe() && !on_any_log()) drown();
 }
 
 int on_log(struct log *log) {
@@ -103,6 +92,16 @@ int on_log(struct log *log) {
     frog->x <= log->x + LOG_WIDTH - PLAYER_WIDTH &&
     frog->y >= log->y && frog->y <= log->y + LOG_HEIGHT;
   unlock_mutex(&frog_lock);
+  return on;
+}
+
+int on_any_log(struct log *log) {
+  struct node *cur;
+  int on = 0;
+  lock_mutex(&list_lock);
+  for (cur = head; !on && cur != NULL; cur = cur->next)
+    on = on_log(cur->log);
+  unlock_mutex(&list_lock);
   return on;
 }
 

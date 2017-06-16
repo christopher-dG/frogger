@@ -45,6 +45,9 @@ int get_slot();
 // Determine if the frog is on a given log or not.
 int on_log(struct log *log);
 
+// Determine if the frog is on any log or not.
+int on_any_log();
+
 // Move the frog back to its starting position.
 void reset_frog();
 

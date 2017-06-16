@@ -37,23 +37,24 @@ pthread_mutex_t list_lock = PTHREAD_MUTEX_INITIALIZER;    // Lock for accessing 
 pthread_mutex_t frog_lock = PTHREAD_MUTEX_INITIALIZER;    // Lock for accessing the player.
 pthread_mutex_t lives_lock = PTHREAD_MUTEX_INITIALIZER;   // Lock for accessing the remaining lives.
 
-pthread_t screen;        // Thread to refresh the screen.
-pthread_t player;        // Thread to control the player.
-pthread_t keyboard;      // Thread to handle user input.
-pthread_t log_producer;  // Thread to continually spawn new logs.
-pthread_t log_manager;   // Thread to clean up inactive logs.
-pthread_t game_monitor;  // Thread to monitor remaining lives and goals.
+pthread_t screen;                    // Thread to refresh the screen.
+pthread_t player;                    // Thread to control the player.
+pthread_t keyboard;                  // Thread to handle user input.
+pthread_t log_manager;               // Thread to clean up inactive logs.
+pthread_t game_monitor;              // Thread to monitor remaining lives and goals.
+pthread_t log_producer[N_LOG_ROWS];  // Thread to continually spawn new logs.
 
 int main() {
+  int i;
   consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD);
 
   // Create the threads that run continously.
   create_thread(&screen, &refresh, NULL);
   create_thread(&player, &init_player, NULL);
   create_thread(&keyboard, &input, NULL);
-  create_thread(&log_producer, &init_producer, NULL);
   create_thread(&log_manager, &manage_logs, NULL);
   create_thread(&game_monitor, &monitor_game, NULL);
+  for (i=0; i<N_LOG_ROWS; i++) create_thread(&log_producer[i], &init_producer, &i);
 
 
   // Wait for the game to end.
@@ -64,6 +65,8 @@ int main() {
 }
 
 void quit_game(char *msg) {
+  int i;
+
   lock_mutex(&screen_lock);
   putBanner(msg);
   disableConsole(1);
@@ -75,11 +78,11 @@ void quit_game(char *msg) {
   running = false;
   cond_signal(&cond);
 
-  join_thread(log_producer);
   join_thread(game_monitor);
   join_thread(screen);
   join_thread(player);
   join_thread(log_manager);
+  for (i=0; i<N_LOG_ROWS; i++) join_thread(log_producer[i]);
 }
 
 void pause_game(int ticks) {

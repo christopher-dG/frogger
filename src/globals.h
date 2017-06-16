@@ -61,9 +61,9 @@
 // Height of a log.
 #define LOG_HEIGHT 4
 // Minimum number of ms / 10 between log spawns.
-#define TICK_BASE 70
+#define TICK_BASE 300
 // Number of ms / 10 to vary log spawns.
-#define TICK_VARIATION 90
+#define TICK_VARIATION 150
 // Screen refresh rate.
 #define REFRESH_RATE 30
 // Message to display while paused.

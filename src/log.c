@@ -14,15 +14,13 @@ static char *LOG_GRAPHIC[N_LOG_GRAPHICS][LOG_HEIGHT + 1] = {
 
 // Continuously spawn new log threads.
 void *init_producer(void *args) {
-  pthread_t log;
-  int i;
+  int row = *(int *)args;
   while (running) {
-    for (i=N_LOG_ROWS; running && i>0; i--) {
-      lock_mutex(&screen_lock);
-      create_thread(&log, &init_log, &i);
-      unlock_mutex(&screen_lock);
-      sleepTicks(TICK_BASE + rand() % TICK_VARIATION);
-    }
+    pthread_t log;
+    lock_mutex(&screen_lock);
+    create_thread(&log, &init_log, &row);
+    unlock_mutex(&screen_lock);
+    sleepTicks(TICK_BASE + rand() % TICK_VARIATION);
   }
 
   return NULL;
@@ -44,8 +42,7 @@ void *init_log(void *args) {
 
   while (running && log->active) {
     move_log(log, log->direction);
-    sleepTicks(10);
-    // sleepTicks(log->row * 2);
+    sleepTicks(log->row * 2);
   }
 
   return NULL;
