@@ -3,6 +3,7 @@
 ## Compilation
 
 ```sh
+cd src
 make
 ```
 
