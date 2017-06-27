@@ -18,3 +18,5 @@ make
 * `w/a/s/d`: Up/down/left/right
 * `spc`: Pause/unpause
 * `q`: Quit
+
+![wow cool](http://i.imgur.com/ShWMgvw.png)
